@@ -35,6 +35,13 @@ func ParseTemplate(tmplFS fs.FS, name, stripPrefix string) (*template.Template, 
 		"gomod": func() string {
 			return "go.mod"
 		},
+		"gomodinit": func(path string) string {
+			f, err := ModeInit(path)
+			if err != nil {
+				panic(err)
+			}
+			return f
+		},
 	}).Parse(string(txtar.Format(ar)))
 }
 
