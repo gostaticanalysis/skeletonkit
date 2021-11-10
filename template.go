@@ -36,7 +36,7 @@ func ParseTemplate(tmplFS fs.FS, name, stripPrefix string) (*template.Template, 
 			return "go.mod"
 		},
 		"gomodinit": func(path string) string {
-			f, err := ModeInit(path)
+			f, err := ModInit(path)
 			if err != nil {
 				panic(err)
 			}
