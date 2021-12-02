@@ -112,17 +112,22 @@ func choosePolicy(prompt *Prompt, dir string) (overwritePolicy, error) {
 	return overwritePolicy(n), nil
 }
 
-func isExist(path string) (bool, error) {
-	_, err := os.Stat(path)
-	if err == nil {
-		return true, nil
+func isExist(dir string) (bool, error) {
+	d, err := os.Open(dir)
+	if err != nil {
+		return false, err
+	}
+	defer d.Close()
+
+	_, err = d.Readdirnames(1)
+	if err != nil {
+		if err == io.EOF {
+			return false, nil
+		}
+		return false, err
 	}
 
-	if os.IsNotExist(err) {
-		return false, nil
-	}
-
-	return false, err
+	return true, nil
 }
 
 func removeDir(dir string) error {
