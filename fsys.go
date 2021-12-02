@@ -5,6 +5,7 @@ import (
 	"io"
 	"io/fs"
 	"os"
+	"path"
 	"path/filepath"
 )
 
@@ -26,7 +27,7 @@ func CreateDir(prompt *Prompt, root string, fsys fs.FS) error {
 	}
 
 	if policy == forceOverwrite {
-		if err := os.RemoveAll(root); err != nil {
+		if err := removeDir(root); err != nil {
 			return err
 		}
 	}
@@ -122,6 +123,27 @@ func isExist(path string) (bool, error) {
 	}
 
 	return false, err
+}
+
+func removeDir(dir string) error {
+	d, err := os.Open(dir)
+	if err != nil {
+		return err
+	}
+	defer d.Close()
+
+	names, err := d.Readdirnames(-1)
+	if err != nil {
+		return err
+	}
+
+	for _, name := range names {
+		if err = os.RemoveAll(path.Join(dir, name)); err != nil {
+			return err
+		}
+	}
+
+	return nil
 }
 
 func create(prompt *Prompt, path string, policy overwritePolicy) (io.WriteCloser, error) {
