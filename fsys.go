@@ -5,7 +5,6 @@ import (
 	"io"
 	"io/fs"
 	"os"
-	"path"
 	"path/filepath"
 )
 
@@ -143,7 +142,7 @@ func removeDir(dir string) error {
 	}
 
 	for _, name := range names {
-		if err = os.RemoveAll(path.Join(dir, name)); err != nil {
+		if err = os.RemoveAll(filepath.Join(dir, name)); err != nil {
 			return err
 		}
 	}
