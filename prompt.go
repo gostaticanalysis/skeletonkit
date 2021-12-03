@@ -30,9 +30,11 @@ func (p *Prompt) Choose(description string, opts []string, prompt string) (int, 
 	}
 
 	optfmt := fmt.Sprintf("[%%%dd] %%s\n", len(strconv.Itoa(len(opts))))
-	for i := range opts {
-		if _, err := fmt.Fprintf(p.Output, optfmt, i+1, opts[i]); err != nil {
-			return 0, err
+	for i, opt := range opts {
+		if opt != "" {
+			if _, err := fmt.Fprintf(p.Output, optfmt, i, opt); err != nil {
+				return 0, err
+			}
 		}
 	}
 	for {
@@ -46,8 +48,8 @@ func (p *Prompt) Choose(description string, opts []string, prompt string) (int, 
 		}
 
 		n, err := strconv.Atoi(s)
-		if err == nil && n >= 1 && n <= len(opts) {
-			return n - 1, nil
+		if err == nil && n >= 0 && n < len(opts) && opts[n] != "" {
+			return n, nil
 		}
 
 		if _, err := fmt.Fprintf(p.ErrOutput, "%s is invalid option\n", s); err != nil {
