@@ -79,7 +79,7 @@ func (p *Prompt) YesNo(description string, defaultVal bool, prompt rune) (bool, 
 		switch strings.ToUpper(s) {
 		case "Y", "YES", "OK":
 			return true, nil
-		case "N", "no":
+		case "N", "NO":
 			return false, nil
 		case "":
 			return defaultVal, nil
