@@ -14,4 +14,7 @@ require (
 	golang.org/x/xerrors v0.0.0-20200804184101-5ec99f83aff1 // indirect
 )
 
-retract v0.1.0
+retract (
+	v0.3.0
+	v0.1.0
+)
