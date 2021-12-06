@@ -87,7 +87,7 @@ func CreateDir(prompt *Prompt, root string, fsys fs.FS, options ...CreatorOption
 			return err
 		}
 
-		if fi.Size() == 0 {
+		if !creator.includeEmpty && fi.Size() == 0 {
 			return nil
 		}
 
