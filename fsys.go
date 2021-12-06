@@ -11,21 +11,54 @@ import (
 type overwritePolicy int
 
 const (
-	cancel overwritePolicy = iota
-	forceOverwrite
-	confirm
-	newOnly
+	promptAction overwritePolicy = iota
+	Cancel
+	ForceOverwrite
+	Confirm
+	NewOnly
 )
 
-// CreateDir creates files and directries which structure same with the given file system.
+// Creator is the representation of a file and directory writer.
+type Creator struct {
+	includeEmpty bool
+	policy       overwritePolicy
+}
+
+// CreatorOption is an option for a creator.
+// It can decorate a creator.
+type CreatorOption func(*Creator)
+
+// CreatorWithEmpty sets if a creator must write empty files.
+func CreatorWithEmpty(include bool) CreatorOption {
+	return func(c *Creator) {
+		c.includeEmpty = include
+	}
+}
+
+// CreatorWithPolicy sets the overwriting policy of a creator.
+func CreatorWithPolicy(policy overwritePolicy) CreatorOption {
+	return func(c *Creator) {
+		c.policy = policy
+	}
+}
+
+// CreateDir creates files and directories which structure is the same with the given file system.
 // The path of created root directory become the parameter root.
-func CreateDir(prompt *Prompt, root string, fsys fs.FS) error {
-	policy, err := choosePolicy(prompt, root)
-	if err != nil {
-		return err
+func CreateDir(prompt *Prompt, root string, fsys fs.FS, options ...CreatorOption) error {
+	creator := &Creator{}
+	for _, opt := range options {
+		opt(creator)
 	}
 
-	if policy == forceOverwrite {
+	var err error
+	if creator.policy == promptAction {
+		creator.policy, err = choosePolicy(prompt, root)
+		if err != nil {
+			return err
+		}
+	}
+
+	if creator.policy == ForceOverwrite {
 		if err := removeDir(root); err != nil {
 			return err
 		}
@@ -63,7 +96,7 @@ func CreateDir(prompt *Prompt, root string, fsys fs.FS) error {
 			return err
 		}
 
-		dst, err := create(prompt, dstPath, policy)
+		dst, err := create(prompt, dstPath, creator.policy)
 		if err != nil {
 			return err
 		}
@@ -93,15 +126,15 @@ func choosePolicy(prompt *Prompt, dir string) (overwritePolicy, error) {
 	}
 
 	if !exist {
-		return cancel, nil
+		return Cancel, nil
 	}
 
 	desc := fmt.Sprintf("%s is already exist, overwrite?", dir)
 	opts := []string{
-		cancel:         "No (Exit)",
-		forceOverwrite: "Remove and create new directory",
-		confirm:        "Overwrite existing files with confirmation",
-		newOnly:        "Create new files only",
+		Cancel:         "No (Exit)",
+		ForceOverwrite: "Remove and create new directory",
+		Confirm:        "Overwrite existing files with confirmation",
+		NewOnly:        "Create new files only",
 	}
 	n, err := prompt.Choose(desc, opts, ">")
 	if err != nil {
@@ -165,7 +198,7 @@ func create(prompt *Prompt, path string, policy overwritePolicy) (io.WriteCloser
 		return os.Create(path)
 	}
 
-	if policy != confirm {
+	if policy != Confirm {
 		return nopWriter, nil
 	}
 
