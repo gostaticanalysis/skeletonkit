@@ -26,7 +26,7 @@ func CreateDir(prompt *Prompt, root string, fsys fs.FS) error {
 	}
 
 	if policy == forceOverwrite {
-		if err := os.RemoveAll(root); err != nil {
+		if err := removeDir(root); err != nil {
 			return err
 		}
 	}
@@ -111,17 +111,43 @@ func choosePolicy(prompt *Prompt, dir string) (overwritePolicy, error) {
 	return overwritePolicy(n), nil
 }
 
-func isExist(path string) (bool, error) {
-	_, err := os.Stat(path)
-	if err == nil {
-		return true, nil
+func isExist(dir string) (bool, error) {
+	d, err := os.Open(dir)
+	if err != nil {
+		return false, err
+	}
+	defer d.Close()
+
+	_, err = d.Readdirnames(1)
+	if err != nil {
+		if err == io.EOF {
+			return false, nil
+		}
+		return false, err
 	}
 
-	if os.IsNotExist(err) {
-		return false, nil
+	return true, nil
+}
+
+func removeDir(dir string) error {
+	d, err := os.Open(dir)
+	if err != nil {
+		return err
+	}
+	defer d.Close()
+
+	names, err := d.Readdirnames(-1)
+	if err != nil {
+		return err
 	}
 
-	return false, err
+	for _, name := range names {
+		if err = os.RemoveAll(filepath.Join(dir, name)); err != nil {
+			return err
+		}
+	}
+
+	return nil
 }
 
 func create(prompt *Prompt, path string, policy overwritePolicy) (io.WriteCloser, error) {
