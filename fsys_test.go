@@ -71,8 +71,8 @@ func TestFsysCreateDir(t *testing.T) {
 		"prompt-choose-invalidinput": {F(t, "go.mod", "// not overwritten"), ".", appInfo{"example", "example.com/example"}, []skeletonkit.TemplateOption{}, []skeletonkit.CreatorOption{}, "INVALID\n", errMap{false, false, true}},
 		"prompt-yesno-invalidinput":  {F(t, "go.mod", "// not overwritten"), ".", appInfo{"example", "example.com/example"}, []skeletonkit.TemplateOption{}, []skeletonkit.CreatorOption{}, "3\nINVALID\n", errMap{false, false, true}},
 
-		"templateopts-delims": {"", "example", appInfo{"example", "example.com/example"}, []skeletonkit.TemplateOption{skeletonkit.TemplateWithDelims("$$", "$$")}, []skeletonkit.CreatorOption{skeletonkit.CreatorWithEmpty(true)}, "", errMap{false, false, false}},
-		"templateopts-funcs":  {"", "example", appInfo{"example", "example.com/example"}, []skeletonkit.TemplateOption{skeletonkit.TemplateWithFuncs(template.FuncMap{"gomod": func() string { return "DIFFERENT-GOMOD" }})}, []skeletonkit.CreatorOption{skeletonkit.CreatorWithEmpty(true)}, "", errMap{false, false, false}},
+		"templateopts-delims": {"", "example", appInfo{"example", "example.com/example"}, []skeletonkit.TemplateOption{skeletonkit.TemplateWithDelims("$$", "$$")}, []skeletonkit.CreatorOption{}, "", errMap{false, false, false}},
+		"templateopts-funcs":  {"", "example", appInfo{"example", "example.com/example"}, []skeletonkit.TemplateOption{skeletonkit.TemplateWithFuncs(template.FuncMap{"gomod": func() string { return "DIFFERENT-GOMOD" }})}, []skeletonkit.CreatorOption{}, "", errMap{false, false, false}},
 		"creatoropts-empty":   {"", "example", appInfo{"example", "example.com/example"}, []skeletonkit.TemplateOption{}, []skeletonkit.CreatorOption{skeletonkit.CreatorWithEmpty(true)}, "", errMap{false, false, false}},
 		"creatoropts-policy":  {F(t, "example/main.go", "// not overwritten"), "example", appInfo{"example", "example.com/example"}, []skeletonkit.TemplateOption{}, []skeletonkit.CreatorOption{skeletonkit.CreatorWithPolicy(skeletonkit.Confirm)}, "n\n", errMap{false, false, false}},
 	}
