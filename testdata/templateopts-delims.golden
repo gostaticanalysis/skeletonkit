@@ -1,3 +1,6 @@
+-- example/@@gomod@@ --
+@@gomodinit .ModulePath@@
+-- example/cmd/@@gitkeep@@ --
 -- example/config.go --
 // Code generated from skeletonkit. DO NOT EDIT.
 
@@ -10,8 +13,7 @@ import (
 func init() {
 	fmt.Println("initialising configuration")
 }
--- example/go.mod --
-// not overwritten
+-- example/internal/@@gitkeep@@ --
 -- example/main.go --
 // Code generated from skeletonkit. DO NOT EDIT.
 
@@ -22,6 +24,6 @@ import (
 )
 
 func main() {
-	fmt.Println("testing skeletonkit. generating for appname: example.")
-	fmt.Println("different delim: $$.Name$$")
+	fmt.Println("testing skeletonkit. generating for appname: @@.Name@@.")
+	fmt.Println("different delim: example")
 }

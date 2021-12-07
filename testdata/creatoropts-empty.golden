@@ -1,3 +1,4 @@
+-- example/cmd/.gitkeep --
 -- example/config.go --
 // Code generated from skeletonkit. DO NOT EDIT.
 
@@ -11,7 +12,11 @@ func init() {
 	fmt.Println("initialising configuration")
 }
 -- example/go.mod --
-// not overwritten
+module example.com/example
+
+go 1.17
+
+-- example/internal/.gitkeep --
 -- example/main.go --
 // Code generated from skeletonkit. DO NOT EDIT.
 

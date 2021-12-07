@@ -8,4 +8,5 @@ import (
 
 func main() {
 	fmt.Println("testing skeletonkit. generating for appname: @@.Name@@.")
+	fmt.Println("different delim: $$.Name$$")
 }

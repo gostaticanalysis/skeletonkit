@@ -26,4 +26,5 @@ import (
 
 func main() {
 	fmt.Println("testing skeletonkit. generating for appname: example.")
+	fmt.Println("different delim: $$.Name$$")
 }
