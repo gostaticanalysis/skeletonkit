@@ -13,18 +13,7 @@ import (
 	"github.com/tenntenn/golden"
 )
 
-type appInfo struct {
-	Name       string
-	ModulePath string
-}
-
-type errMap struct {
-	errParse  bool
-	errExec   bool
-	errCreate bool
-}
-
-//go:embed testdata/_template
+//go:embed testdata/template
 var testTmplFS embed.FS
 
 var (
@@ -38,6 +27,24 @@ func init() {
 func TestFsysCreateDir(t *testing.T) {
 	t.Parallel()
 	F := golden.TxtarWith
+	T := func(opts ...skeletonkit.TemplateOption) []skeletonkit.TemplateOption {
+		return opts
+	}
+	C := func(opts ...skeletonkit.CreatorOption) []skeletonkit.CreatorOption {
+		return opts
+	}
+
+	type appInfo struct {
+		Name       string
+		ModulePath string
+	}
+
+	type errs struct {
+		parse  bool
+		exec   bool
+		create bool
+	}
+
 	cases := map[string]struct {
 		dirinit string
 		root    string
@@ -48,33 +55,33 @@ func TestFsysCreateDir(t *testing.T) {
 
 		input string
 
-		wantErr errMap
+		wantErr errs
 	}{
-		"clean":          {"", "example", appInfo{"example", "example.com/example"}, []skeletonkit.TemplateOption{}, []skeletonkit.CreatorOption{}, "", errMap{false, false, false}},
-		"clean-relative": {"", ".", appInfo{"example", "example.com/example"}, []skeletonkit.TemplateOption{}, []skeletonkit.CreatorOption{}, "", errMap{false, false, false}},
+		"clean":          {"", "example", appInfo{"example", "example.com/example"}, nil, nil, "", errs{false, false, false}},
+		"clean-relative": {"", ".", appInfo{"example", "example.com/example"}, nil, nil, "", errs{false, false, false}},
 
-		"overwrite-cancel":          {F(t, "example/main.go", "// not overwritten"), "example", appInfo{"example", "example.com/example"}, []skeletonkit.TemplateOption{}, []skeletonkit.CreatorOption{}, "1\n", errMap{false, false, false}},
-		"overwrite-cancel-relative": {F(t, "main.go", "// not overwritten"), ".", appInfo{"example", "example.com/example"}, []skeletonkit.TemplateOption{}, []skeletonkit.CreatorOption{}, "1\n", errMap{false, false, false}},
+		"overwrite-cancel":          {F(t, "example/main.go", "// not overwritten"), "example", appInfo{"example", "example.com/example"}, nil, nil, "1\n", errs{false, false, false}},
+		"overwrite-cancel-relative": {F(t, "main.go", "// not overwritten"), ".", appInfo{"example", "example.com/example"}, nil, nil, "1\n", errs{false, false, false}},
 
-		"overwrite-force":          {F(t, "example/main.go", "// not overwritten"), "example", appInfo{"example", "example.com/example"}, []skeletonkit.TemplateOption{}, []skeletonkit.CreatorOption{}, "2\n", errMap{false, false, false}},
-		"overwrite-force-relative": {F(t, "main.go", "// not overwritten"), ".", appInfo{"example", "example.com/example"}, []skeletonkit.TemplateOption{}, []skeletonkit.CreatorOption{}, "2\n", errMap{false, false, false}},
+		"overwrite-force":          {F(t, "example/main.go", "// not overwritten"), "example", appInfo{"example", "example.com/example"}, nil, nil, "2\n", errs{false, false, false}},
+		"overwrite-force-relative": {F(t, "main.go", "// not overwritten"), ".", appInfo{"example", "example.com/example"}, nil, nil, "2\n", errs{false, false, false}},
 
-		"overwrite-confirm-yes":          {F(t, "example/main.go", "// not overwritten"), "example", appInfo{"example", "example.com/example"}, []skeletonkit.TemplateOption{}, []skeletonkit.CreatorOption{}, "3\ny\n", errMap{false, false, false}},
-		"overwrite-confirm-yes-relative": {F(t, "main.go", "// not overwritten"), ".", appInfo{"example", "example.com/example"}, []skeletonkit.TemplateOption{}, []skeletonkit.CreatorOption{}, "3\ny\n", errMap{false, false, false}},
+		"overwrite-confirm-yes":          {F(t, "example/main.go", "// not overwritten"), "example", appInfo{"example", "example.com/example"}, nil, nil, "3\ny\n", errs{false, false, false}},
+		"overwrite-confirm-yes-relative": {F(t, "main.go", "// not overwritten"), ".", appInfo{"example", "example.com/example"}, nil, nil, "3\ny\n", errs{false, false, false}},
 
-		"overwrite-confirm-no":          {F(t, "example/main.go", "// not overwritten"), "example", appInfo{"example", "example.com/example"}, []skeletonkit.TemplateOption{}, []skeletonkit.CreatorOption{}, "3\nn\n", errMap{false, false, false}},
-		"overwrite-confirm-no-relative": {F(t, "main.go", "// not overwritten"), ".", appInfo{"example", "example.com/example"}, []skeletonkit.TemplateOption{}, []skeletonkit.CreatorOption{}, "3\nn\n", errMap{false, false, false}},
+		"overwrite-confirm-no":          {F(t, "example/main.go", "// not overwritten"), "example", appInfo{"example", "example.com/example"}, nil, nil, "3\nn\n", errs{false, false, false}},
+		"overwrite-confirm-no-relative": {F(t, "main.go", "// not overwritten"), ".", appInfo{"example", "example.com/example"}, nil, nil, "3\nn\n", errs{false, false, false}},
 
-		"overwrite-newonly":          {F(t, "example/go.mod", "// not overwritten"), "example", appInfo{"example", "example.com/example"}, []skeletonkit.TemplateOption{}, []skeletonkit.CreatorOption{}, "4\n", errMap{false, false, false}},
-		"overwrite-newonly-relative": {F(t, "go.mod", "// not overwritten"), ".", appInfo{"example", "example.com/example"}, []skeletonkit.TemplateOption{}, []skeletonkit.CreatorOption{}, "4\n", errMap{false, false, false}},
+		"overwrite-newonly":          {F(t, "example/go.mod", "// not overwritten"), "example", appInfo{"example", "example.com/example"}, nil, nil, "4\n", errs{false, false, false}},
+		"overwrite-newonly-relative": {F(t, "go.mod", "// not overwritten"), ".", appInfo{"example", "example.com/example"}, nil, nil, "4\n", errs{false, false, false}},
 
-		"prompt-choose-invalidinput": {F(t, "go.mod", "// not overwritten"), ".", appInfo{"example", "example.com/example"}, []skeletonkit.TemplateOption{}, []skeletonkit.CreatorOption{}, "INVALID\n", errMap{false, false, true}},
-		"prompt-yesno-invalidinput":  {F(t, "go.mod", "// not overwritten"), ".", appInfo{"example", "example.com/example"}, []skeletonkit.TemplateOption{}, []skeletonkit.CreatorOption{}, "3\nINVALID\n", errMap{false, false, true}},
+		"prompt-choose-invalidinput": {F(t, "go.mod", "// not overwritten"), ".", appInfo{"example", "example.com/example"}, nil, nil, "INVALID\n", errs{false, false, true}},
+		"prompt-yesno-invalidinput":  {F(t, "go.mod", "// not overwritten"), ".", appInfo{"example", "example.com/example"}, nil, nil, "3\nINVALID\n", errs{false, false, true}},
 
-		"templateopts-delims": {"", "example", appInfo{"example", "example.com/example"}, []skeletonkit.TemplateOption{skeletonkit.TemplateWithDelims("$$", "$$")}, []skeletonkit.CreatorOption{}, "", errMap{false, false, false}},
-		"templateopts-funcs":  {"", "example", appInfo{"example", "example.com/example"}, []skeletonkit.TemplateOption{skeletonkit.TemplateWithFuncs(template.FuncMap{"gomod": func() string { return "DIFFERENT-GOMOD" }})}, []skeletonkit.CreatorOption{}, "", errMap{false, false, false}},
-		"creatoropts-empty":   {"", "example", appInfo{"example", "example.com/example"}, []skeletonkit.TemplateOption{}, []skeletonkit.CreatorOption{skeletonkit.CreatorWithEmpty(true)}, "", errMap{false, false, false}},
-		"creatoropts-policy":  {F(t, "example/main.go", "// not overwritten"), "example", appInfo{"example", "example.com/example"}, []skeletonkit.TemplateOption{}, []skeletonkit.CreatorOption{skeletonkit.CreatorWithPolicy(skeletonkit.Confirm)}, "n\n", errMap{false, false, false}},
+		"templateopts-delims": {"", "example", appInfo{"example", "example.com/example"}, T(skeletonkit.TemplateWithDelims("$$", "$$")), nil, "", errs{false, false, false}},
+		"templateopts-funcs":  {"", "example", appInfo{"example", "example.com/example"}, T(skeletonkit.TemplateWithFuncs(template.FuncMap{"gomod": func() string { return "DIFFERENT-GOMOD" }})), nil, "", errs{false, false, false}},
+		"creatoropts-empty":   {"", "example", appInfo{"example", "example.com/example"}, nil, C(skeletonkit.CreatorWithEmpty(true)), "", errs{false, false, false}},
+		"creatoropts-policy":  {F(t, "example/main.go", "// not overwritten"), "example", appInfo{"example", "example.com/example"}, nil, C(skeletonkit.CreatorWithPolicy(skeletonkit.Confirm)), "n\n", errs{false, false, false}},
 	}
 
 	if flagUpdate {
@@ -97,27 +104,27 @@ func TestFsysCreateDir(t *testing.T) {
 				ErrOutput: io.Discard,
 			}
 
-			tmpl, err := skeletonkit.ParseTemplate(testTmplFS, "example", "testdata/_template", tt.tmplOpts...)
+			tmpl, err := skeletonkit.ParseTemplate(testTmplFS, "example", "testdata/template", tt.tmplOpts...)
 			switch {
-			case tt.wantErr.errParse && err == nil:
+			case tt.wantErr.parse && err == nil:
 				t.Error("expected error did not occur")
-			case !tt.wantErr.errParse && err != nil:
+			case !tt.wantErr.parse && err != nil:
 				t.Error("unexpected error:", err)
 			}
 
 			fsys, err := skeletonkit.ExecuteTemplate(tmpl, tt.info)
 			switch {
-			case tt.wantErr.errExec && err == nil:
+			case tt.wantErr.exec && err == nil:
 				t.Error("expected error did not occur")
-			case !tt.wantErr.errExec && err != nil:
+			case !tt.wantErr.exec && err != nil:
 				t.Error("unexpected error:", err)
 			}
 
 			err = skeletonkit.CreateDir(prompt, filepath.Join(dir, tt.root), fsys, tt.creatorOpts...)
 			switch {
-			case tt.wantErr.errCreate && err == nil:
+			case tt.wantErr.create && err == nil:
 				t.Error("expected error did not occur")
-			case !tt.wantErr.errCreate && err != nil:
+			case !tt.wantErr.create && err != nil:
 				t.Error("unexpected error:", err)
 			}
 
