@@ -1,0 +1,30 @@
+-- config.go --
+// Code generated from skeletonkit. DO NOT EDIT.
+
+package main
+
+import (
+	"fmt"
+)
+
+func init() {
+	fmt.Println("initialising configuration")
+}
+-- go.mod --
+module example.com/example
+
+go 1.17
+
+-- main.go --
+// Code generated from skeletonkit. DO NOT EDIT.
+
+package main
+
+import (
+	"fmt"
+)
+
+func main() {
+	fmt.Println("testing skeletonkit. generating for appname: example.")
+	fmt.Println("different delim: $$.Name$$")
+}

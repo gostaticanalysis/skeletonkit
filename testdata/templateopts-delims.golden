@@ -1,0 +1,27 @@
+-- example/@@gomod@@ --
+@@gomodinit .ModulePath@@
+-- example/config.go --
+// Code generated from skeletonkit. DO NOT EDIT.
+
+package main
+
+import (
+	"fmt"
+)
+
+func init() {
+	fmt.Println("initialising configuration")
+}
+-- example/main.go --
+// Code generated from skeletonkit. DO NOT EDIT.
+
+package main
+
+import (
+	"fmt"
+)
+
+func main() {
+	fmt.Println("testing skeletonkit. generating for appname: @@.Name@@.")
+	fmt.Println("different delim: example")
+}
