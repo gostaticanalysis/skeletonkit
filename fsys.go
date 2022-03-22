@@ -22,6 +22,7 @@ const (
 type Creator struct {
 	includeEmpty bool
 	policy       overwritePolicy
+	skipfunc     func(path string, d fs.DirEntry) bool
 }
 
 // CreatorOption is an option for a creator.
@@ -42,12 +43,19 @@ func CreatorWithPolicy(policy overwritePolicy) CreatorOption {
 	}
 }
 
+// CreatorWithSkipFunc sets a function if it returns true a file or a directory would be skipped.
+func CreatorWithSkipFunc(skipfunc func(path string, d fs.DirEntry) bool) CreatorOption {
+	return func(c *Creator) {
+		c.skipfunc = skipfunc
+	}
+}
+
 // CreateDir creates files and directories which structure is the same with the given file system.
 // The path of created root directory become the parameter root.
 func CreateDir(prompt *Prompt, root string, fsys fs.FS, options ...CreatorOption) error {
-	creator := &Creator{}
+	var creator Creator
 	for _, opt := range options {
-		opt(creator)
+		opt(&creator)
 	}
 
 	var err error
@@ -67,6 +75,13 @@ func CreateDir(prompt *Prompt, root string, fsys fs.FS, options ...CreatorOption
 	err = fs.WalkDir(fsys, ".", func(path string, d fs.DirEntry, err error) (rerr error) {
 		if err != nil {
 			return err
+		}
+
+		if creator.skipfunc != nil && creator.skipfunc(path, d) {
+			if d.IsDir() {
+				return fs.SkipDir
+			}
+			return nil
 		}
 
 		// directory would create with a file
