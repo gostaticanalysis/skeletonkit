@@ -1,6 +1,6 @@
 module github.com/gostaticanalysis/skeletonkit
 
-go 1.17
+go 1.23.3
 
 require (
 	github.com/josharian/txtarfs v0.0.0-20210615234325-77aca6df5bca
