@@ -14,7 +14,7 @@ func init() {
 -- example/go.mod --
 module example.com/example
 
-go 1.17
+go 1.23
 
 -- example/internal/.gitkeep --
 -- example/main.go --
