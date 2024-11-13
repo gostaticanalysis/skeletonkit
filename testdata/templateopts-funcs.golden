@@ -1,7 +1,7 @@
 -- example/DIFFERENT-GOMOD --
 module example.com/example
 
-go 1.17
+go 1.23
 
 -- example/config.go --
 // Code generated from skeletonkit. DO NOT EDIT.
