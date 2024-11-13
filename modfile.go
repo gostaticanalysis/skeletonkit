@@ -1,9 +1,9 @@
 package skeletonkit
 
 import (
-	"errors"
+	"bytes"
 	"fmt"
-	"go/build"
+	"os/exec"
 	"strings"
 
 	"golang.org/x/mod/modfile"
@@ -33,12 +33,13 @@ func ModInit(path string) (string, error) {
 }
 
 func goVersion() (string, error) {
-	tags := build.Default.ReleaseTags
-	for i := len(tags) - 1; i >= 0; i-- {
-		version := tags[i]
-		if strings.HasPrefix(version, "go") && modfile.GoVersionRE.MatchString(version[2:]) {
-			return version[2:], nil
-		}
+	var stdout bytes.Buffer
+	cmd := exec.Command("go", "env", "GOVERSION")
+	cmd.Stdout = &stdout
+
+	if err := cmd.Run(); err != nil {
+		return "", err
 	}
-	return "", errors.New("there are not valid go version")
+
+	return strings.TrimPrefix(strings.TrimSpace(stdout.String()), "go"), nil
 }
