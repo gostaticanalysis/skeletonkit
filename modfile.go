@@ -46,7 +46,11 @@ func goVersion() (string, error) {
 
 func parseGoVersion(version string) string {
 	if strings.HasPrefix(version, "devel ") {
-		version = strings.Split(strings.TrimPrefix(version, "devel "), "-")[0]
+		v, _, ok := strings.Cut(strings.TrimPrefix(version, "devel "), "-")
+		if !ok {
+			return ""
+		}
+		version = v
 	}
 	return strings.TrimPrefix(version, "go")
 }
