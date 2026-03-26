@@ -41,5 +41,16 @@ func goVersion() (string, error) {
 		return "", err
 	}
 
-	return strings.TrimPrefix(strings.TrimSpace(stdout.String()), "go"), nil
+	return parseGoVersion(strings.TrimSpace(stdout.String())), nil
+}
+
+func parseGoVersion(version string) string {
+	if strings.HasPrefix(version, "devel ") {
+		v, _, ok := strings.Cut(strings.TrimPrefix(version, "devel "), "-")
+		if !ok {
+			return ""
+		}
+		version = v
+	}
+	return strings.TrimPrefix(version, "go")
 }
