@@ -1,5 +1,8 @@
 # Changelog
 
+## [v0.4.2](https://github.com/gostaticanalysis/skeletonkit/compare/v0.4.1...v0.4.2) - 2026-03-26
+- support devl version by @sivchari in https://github.com/gostaticanalysis/skeletonkit/pull/11
+
 ## [v0.4.1](https://github.com/gostaticanalysis/skeletonkit/compare/v0.4.0...v0.4.1) - 2024-11-13
 - Add tagpr by @tenntenn in https://github.com/gostaticanalysis/skeletonkit/pull/8
 - Update go version by @tenntenn in https://github.com/gostaticanalysis/skeletonkit/pull/10
